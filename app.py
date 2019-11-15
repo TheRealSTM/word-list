@@ -18,7 +18,7 @@ class WordForm(FlaskForm):
 
 csrf = CSRFProtect()
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "row the boat"
+app.config["SECRET_KEY"] = "row the boats"
 csrf.init_app(app)
 
 prev_word_set = set()
