@@ -1,7 +1,8 @@
-from flask import Flask, flash, request, Response, render_template, redirect, url_for
+from flask import Flask, flash, request, Response, render_template, redirect, url_for, jsonify
 import requests
 import itertools
 from flask_wtf.csrf import CSRFProtect
+from flask_cors import CORS, cross_origin
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, BooleanField
 from wtforms.fields.html5 import DecimalRangeField
@@ -18,6 +19,7 @@ class WordForm(FlaskForm):
 
 csrf = CSRFProtect()
 app = Flask(__name__)
+CORS(app)
 app.config["SECRET_KEY"] = "row the boats"
 app.config["TESTING"] = True
 csrf.init_app(app)
@@ -86,35 +88,20 @@ def index():
 
 @app.route('/words', methods=['GET', 'POST'])
 def list_words(**kwargs):
-    word_set = set()
-    letters, pattern, filter_by_len, word_len = None, None, None, None
-    good_words = set()
+    word_set, good_words = set(), set()
     sorted_good_words = []
     form = WordForm()
     modal_word = dict()
-    key_words = ['var_word', 'letters', 'pattern', 'filter', 'word_len']
 
     if form.validate_on_submit():
         letters = form.avail_letters.data
         pattern = form.avail_pattern.data
         if has_non_alpha(letters) or has_non_pattern(pattern):
+            flash('letters must consist of alphabetical characters and patterns must consist of alphabetical characters or .')
             return render_template("index.html", form=form, name="CSCI4131")
 
         filter_by_len = bool(form.select_word_len.data)
         word_len = int(form.word_len.data)
-    elif 'var_word' in request.args:
-            modal_word['word'] = request.args['var_word']
-            app.logger.info("word: {}".format(modal_word['word']))
-            letters = request.args['letters']
-            app.logger.info("letters: {}".format(letters))
-            pattern = request.args['pattern']
-            app.logger.info("pattern: {}".format(pattern))
-            filter_by_len = True if request.args['filter_by_len'] == "True" else False
-            app.logger.info("filter_by_len: {}".format(filter_by_len))
-            word_len = int(request.args['word_len'])
-            app.logger.info("word_len: {}".format(word_len))
-            if has_non_alpha(letters) or has_non_pattern(pattern):
-                return render_template("index.html", form=form, name="CSCI4131")
     else:
         return render_template("index.html", form=form, name="CSCI4131")
 
@@ -128,7 +115,10 @@ def list_words(**kwargs):
         word_set = get_good_words_by_size(word_set, word_len)
     elif letters and not filter_by_len:
         generate_permutations(letters, len(letters), word_set, good_words, filter_by_len)
-    elif pattern:
+    elif pattern and filter_by_len:
+        if len(pattern) != word_len:
+            flash('if pattern and filter by length are both selected, they must be the same length!')
+            return render_template("index.html", form=form, name="CSCI4131")
         filter_by_pattern(pattern, word_set, sorted_good_words)
     elif filter_by_len:
         word_set = get_good_words_by_size(sorted_good_words, word_len)
@@ -140,13 +130,12 @@ def list_words(**kwargs):
 
     return render_template('wordlist.html', wordlist=sorted(word_set, key=lambda x:(len(x), x)),
         name="CS4131",
-        modal_word=modal_word,
-        letters=letters,
-        pattern=pattern,
-        filter_by_len=filter_by_len,
-        word_len=word_len)
+        modal_word=modal_word)
 
+
+@app.route('/get_def/<word>', methods=['GET', 'POST'])
 def get_definition(word):
+    app.logger.info("Received request for {}".format(word))
     result = requests.get('https://www.dictionaryapi.com/api/v3/references/collegiate/json/' + \
         word + '?key=6283d672-c28a-4e42-af70-aefc42fe7fc6')
     word_dict = json.loads(result.text)
@@ -154,4 +143,5 @@ def get_definition(word):
         defs = word_dict[0]["shortdef"]
     else:
         defs = ["definition was not found!"]
-    return defs
+    message = {'defs':defs}
+    return jsonify(message)

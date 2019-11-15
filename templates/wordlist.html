@@ -7,60 +7,52 @@
 
   function openModal(loop_index) {
     console.log("I am getting the modal for " + loop_index);
-    var src_word = document.getElementById('word_' + loop_index).innerHTML;
+    var src_word = document.getElementById('word_' + loop_index).innerHTML.trim();
     var modal = document.getElementById('modal_' + loop_index);
     var modal_word = modal.getElementsByClassName('word')[0];
     var modal_def = modal.getElementsByClassName('def')[0];
     // https://www.dictionaryapi.com/api/v3/references/collegiate/json/test?key=6283d672-c28a-4e42-af70-aefc42fe7fc6  
-    fetch('https://www.dictionaryapi.com/api/v3/references/collegiate/json/test?key=6283d672-c28a-4e42-af70-aefc42fe7fc6')
+    fetch('http://localhost:5000/get_def/'+src_word)
+      .then((res) => { return res.json() })
       .then((data) => {
       modal_word.innerHTML = src_word;
-      modal_def.innerHTML = src_word;
-      console.log(src_word);
-      console.log(modal_def);
-      console.log(data);
+      modal_def.innerHTML = '';
+      var new_defs = data['defs'];
+      for (var i = 0; i < new_defs.length; i++) {
+        var temp_def = new_defs[i];
+        var li = document.createElement('li');
+        li.appendChild(document.createTextNode(temp_def));
+        console.log(new_defs[i]);
+        modal_def.appendChild(li);
+      }
       modal.style.display = 'block';
     });
-    // console.log(word);
-    // console.log(def);
-    // word.innerHTML = src_word;
-    // def.innerHTML = src_word;
-    // word_modal.style.display = 'block';
   }
 
   function closeModal(loop_index) {
-    var word_modal = document.getElementById('word_modal');
-    console.log(word_modal.word_def);
-    word_modal.style.display = 'none';
-
+    var modal = document.getElementById('modal_'+loop_index);
+    modal.style.display = 'none';
   }
 </script>
 
 <main>
     {% for word in wordlist: %}
-        <a href={{ url_for('list_words', var_word=word, letters=letters, pattern=pattern, filter_by_len=filter_by_len, word_len=word_len) }}>
-          <button class="wordbox" id="word_{{loop.index}}" onclick="openModal({{ loop.index }});">
-            {{ word }}
-          </button>
-        </a>
-    {% endfor %}
-    {% if modal_word %}
-      <div id="word_modal">
-        <div id="word_def">
-          <span id="closeButton" onclick="closeModal();">&times;</span>
-          <p class="word">Word: {{ modal_word["word"] }}</p>
-          <p> definitions: </p>
-          <ul>
-            {%  for def in modal_word["def"] %}
-            <li>
-              {{ def }}
-            </li>
-            {% endfor %}
-          </ul>
+           <button class="wordbox" id="word_{{loop.index}}" onclick="openModal({{ loop.index }});">
+             {{ word }}
+           </button>
+           <div class="word_modal" id='modal_{{ loop.index}}'>
+              <div class="word_def">
+                <span id="closeButton" onclick="closeModal({{ loop.index}});">&times;</span>
+                <p class="word" id="word_place_{{loop.index}}"></p>
 
-        </div>
-      </div>
-    {% endif %}
+                <p> definitions: </p>
+                <ul class="def">
+
+                </ul>
+              </div>
+          </div>
+
+    {% endfor %}
 
 </main>
 {% endblock %}
