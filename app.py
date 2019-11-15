@@ -121,7 +121,7 @@ def list_words(**kwargs):
 
     with open('sowpods.txt') as f:
         good_words = set(x.strip().lower() for x in f.readlines())
-        sorted_good_words = sorted(list(good_words), key=lambda x: len(x))
+        sorted_good_words = sorted(list(good_words), key=lambda x: (len(x), x))
 
     if letters and filter_by_len:
         generate_permutations(letters, word_len, word_set, good_words, filter_by_len)
@@ -133,7 +133,8 @@ def list_words(**kwargs):
     elif filter_by_len:
         word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
-        render_template('wordlist.html', wordlist=list(good_words),
+        app.logger.info("LAST CONDITION")
+        return render_template('wordlist.html', wordlist=sorted_good_words,
             name="CS4131",
             modal_word=modal_word,
             letters=letters,
