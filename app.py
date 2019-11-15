@@ -133,8 +133,13 @@ def list_words(**kwargs):
     elif filter_by_len:
         word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
-        flash('Due to limitations in implementation/heroku, results must have a filter applied!')
-        return redirect(url_for('index', form=form, name="CSCI4131"))
+        render_template('wordlist.html', wordlist=list(word_set),
+            name="CS4131",
+            modal_word=modal_word,
+            letters=letters,
+            pattern=pattern,
+            filter_by_len=filter_by_len,
+            word_len=word_len)
     if modal_word:
         modal_word['def'] = get_definition(modal_word['word'])
 
