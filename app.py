@@ -131,7 +131,7 @@ def list_words():
         modal_word['def'] = get_definition(modal_word['word'])
 
     return render_template('wordlist.html', wordlist=sorted(word_set, key=lambda x:(len(x), x)),
-        name="CS4131",
+        name="Sean Montague",
         modal_word=modal_word)
 
 
