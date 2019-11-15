@@ -124,17 +124,16 @@ def list_words(**kwargs):
         sorted_good_words = sorted(list(good_words), key=lambda x: len(x))
 
     if letters and filter_by_len:
-        app.logger.info("Entered filter_by_len")
         generate_permutations(letters, word_len, word_set, good_words, filter_by_len)
         word_set = get_good_words_by_size(word_set, word_len)
     elif letters and not filter_by_len:
-        app.logger.info("Entered not filter_by_len")
         generate_permutations(letters, len(letters), word_set, good_words, filter_by_len)
     elif pattern:
         filter_by_pattern(pattern, word_set, sorted_good_words)
     elif filter_by_len:
         word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
+        app.logger.info("last choice")
         word_set = good_words
     if modal_word:
         modal_word['def'] = get_definition(modal_word['word'])
