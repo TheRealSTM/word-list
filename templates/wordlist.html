@@ -38,7 +38,7 @@
 
 <main>
     {% for word in wordlist: %}
-        <a href={{ url_for('list_words', var_word=word) }}>
+        <a href={{ url_for('list_words', var_word=word, letters=letters, pattern=pattern, filter_by_len=filter_by_len, word_len=word_len) }}>
           <button class="wordbox" id="word_{{loop.index}}" onclick="openModal({{ loop.index }});">
             {{ word }}
           </button>

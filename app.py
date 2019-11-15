@@ -19,6 +19,7 @@ class WordForm(FlaskForm):
 csrf = CSRFProtect()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "row the boats"
+app.config["TESTING"] = True
 csrf.init_app(app)
 
 prev_word_set = set()
@@ -89,11 +90,13 @@ def index():
 @app.route('/words', methods=['GET', 'POST'])
 def list_words(**kwargs):
     word_set = set()
-    global prev_word_set, g_good_words, g_sorted_good_words
+    letters, pattern, filter_by_len, word_len = None, None, None, None
+    good_words = set()
+    sorted_good_words = []
     form = WordForm()
     modal_word = dict()
-    if 'var_word' in request.args:
-        modal_word['word'] = request.args['var_word']
+    key_words = ['var_word', 'letters', 'pattern', 'filter', 'word_len']
+
     if form.validate_on_submit():
         letters = form.avail_letters.data
         pattern = form.avail_pattern.data
@@ -102,34 +105,51 @@ def list_words(**kwargs):
 
         filter_by_len = bool(form.select_word_len.data)
         word_len = int(form.word_len.data)
-    elif not modal_word:
+    elif 'var_word' in request.args:
+            modal_word['word'] = request.args['var_word']
+            app.logger.info("word: {}".format(modal_word['word']))
+            letters = request.args['letters']
+            app.logger.info("letters: {}".format(letters))
+            pattern = request.args['pattern']
+            app.logger.info("pattern: {}".format(pattern))
+            filter_by_len = True if request.args['filter_by_len'] == "True" else False
+            app.logger.info("filter_by_len: {}".format(filter_by_len))
+            word_len = int(request.args['word_len'])
+            app.logger.info("word_len: {}".format(word_len))
+            if has_non_alpha(letters) or has_non_pattern(pattern):
+                return render_template("index.html", form=form, name="CSCI4131")
+    else:
         return render_template("index.html", form=form, name="CSCI4131")
 
-    if not modal_word:
-        if not g_good_words:
-            with open('sowpods.txt') as f:
-                g_good_words = set(x.strip().lower() for x in f.readlines())
-                g_sorted_good_words = sorted(list(g_good_words), key=lambda x: len(x))
 
-        if letters and filter_by_len:
-            generate_permutations(letters, word_len, word_set, g_good_words, filter_by_len)
-            word_set = get_good_words_by_size(word_set, word_len)
-        elif letters and not filter_by_len:
-            generate_permutations(letters, len(letters), word_set, g_good_words, filter_by_len)
-        elif pattern:
-            filter_by_pattern(pattern, word_set, g_sorted_good_words)
-        elif filter_by_len:
-            word_set = get_good_words_by_size(g_sorted_good_words, word_len)
-        else:
-            return render_template("index.html", form=form, name="CSCI4131")
-        prev_word_set = word_set
+    with open('sowpods.txt') as f:
+        good_words = set(x.strip().lower() for x in f.readlines())
+        sorted_good_words = sorted(list(good_words), key=lambda x: len(x))
+
+    if letters and filter_by_len:
+        app.logger.info("Entered filter_by_len")
+        generate_permutations(letters, word_len, word_set, good_words, filter_by_len)
+        word_set = get_good_words_by_size(word_set, word_len)
+    elif letters and not filter_by_len:
+        app.logger.info("Entered not filter_by_len")
+        generate_permutations(letters, len(letters), word_set, good_words, filter_by_len)
+    elif pattern:
+        filter_by_pattern(pattern, word_set, sorted_good_words)
+    elif filter_by_len:
+        word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
-        word_set = prev_word_set
+        return render_template("index.html", form=form, name="CSCI4131")
+        prev_word_set = word_set
+    if modal_word:
         modal_word['def'] = get_definition(modal_word['word'])
 
     return render_template('wordlist.html', wordlist=sorted(word_set),
         name="CS4131",
-        modal_word=modal_word)
+        modal_word=modal_word,
+        letters=letters,
+        pattern=pattern,
+        filter_by_len=filter_by_len,
+        word_len=word_len)
 
 def get_definition(word):
     result = requests.get('https://www.dictionaryapi.com/api/v3/references/collegiate/json/' + \
