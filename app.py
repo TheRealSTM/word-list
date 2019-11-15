@@ -120,6 +120,8 @@ def list_words():
             flash('if pattern and filter by length are both selected, they must be the same length!')
             return render_template("index.html", form=form, name="CSCI4131")
         filter_by_pattern(pattern, word_set, sorted_good_words)
+    elif pattern and not filter_by_len:
+        filter_by_pattern(pattern, word_set, sorted_good_words)
     elif filter_by_len:
         word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
