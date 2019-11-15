@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <script>
+      function displayWordLength(length) {
+        document.querySelector('#wordLength').value = Math.floor(length);
+      }
+    </script>
+
+    <form action="/words" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+          {{ form.avail_letters.label }}
+          {{ form.avail_letters }}
+        </p>
+        <p>
+          {{ form.avail_pattern.label }}
+          {{ form.avail_pattern }}
+        </p>
+        <p>
+          {{ form.select_word_len.label }}
+          {{ form.select_word_len() }}
+        </p>
+        <p>
+          {{ form.word_len.label }}
+          {{ form.word_len(min=3, max=10, oninput="displayWordLength(value)") }}
+          <output id="wordLength" for="value"></output>
+        </p>
+        {{ form.submit() }}
+
+    </form>
+
+{% endblock %}

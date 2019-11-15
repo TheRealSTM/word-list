@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+  // Key (Dictionary):6283d672-c28a-4e42-af70-aefc42fe7fc6Key
+  // (Thesaurus):bfc4e8f4-02fb-40bb-abe9-b159651a553e
+
+  function openModal(loop_index) {
+    console.log("I am getting the modal for " + loop_index);
+    var src_word = document.getElementById('word_' + loop_index).innerHTML;
+    var modal = document.getElementById('modal_' + loop_index);
+    var modal_word = modal.getElementsByClassName('word')[0];
+    var modal_def = modal.getElementsByClassName('def')[0];
+    // https://www.dictionaryapi.com/api/v3/references/collegiate/json/test?key=6283d672-c28a-4e42-af70-aefc42fe7fc6  
+    fetch('https://www.dictionaryapi.com/api/v3/references/collegiate/json/test?key=6283d672-c28a-4e42-af70-aefc42fe7fc6')
+      .then((data) => {
+      modal_word.innerHTML = src_word;
+      modal_def.innerHTML = src_word;
+      console.log(src_word);
+      console.log(modal_def);
+      console.log(data);
+      modal.style.display = 'block';
+    });
+    // console.log(word);
+    // console.log(def);
+    // word.innerHTML = src_word;
+    // def.innerHTML = src_word;
+    // word_modal.style.display = 'block';
+  }
+
+  function closeModal(loop_index) {
+    var word_modal = document.getElementById('word_modal');
+    console.log(word_modal.word_def);
+    word_modal.style.display = 'none';
+
+  }
+</script>
+
+<main>
+    {% for word in wordlist: %}
+        <a href={{ url_for('list_words', var_word=word) }}>
+          <button class="wordbox" id="word_{{loop.index}}" onclick="openModal({{ loop.index }});">
+            {{ word }}
+          </button>
+        </a>
+    {% endfor %}
+    {% if modal_word %}
+      <div id="word_modal">
+        <div id="word_def">
+          <span id="closeButton" onclick="closeModal();">&times;</span>
+          <p class="word">Word: {{ modal_word["word"] }}</p>
+          <p> definitions: </p>
+          <ul>
+            {%  for def in modal_word["def"] %}
+            <li>
+              {{ def }}
+            </li>
+            {% endfor %}
+          </ul>
+
+        </div>
+      </div>
+    {% endif %}
+
+</main>
+{% endblock %}

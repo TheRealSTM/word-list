@@ -1,0 +1,41 @@
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    background-color: lightslategray;
+}
+
+.wordbox {
+    text-align: center;
+    border: solid white;
+    margin: 3px;
+
+}
+
+#word_modal {
+  position: fixed;
+  z-index: 1;
+  height:100%;
+  width:100%;
+  left: 0;
+  top: 0;
+  background-color: rgba(0,0,0,0.6);
+  display: block;
+}
+
+#word_def {
+  background-color: white;
+  margin: 10% auto;
+  padding: 30px;
+  width: 60%;
+}
+
+#closeButton {
+  color: grey;
+  font-size: 36px;
+  float: right;
+}
+
+#closeButton:hover {
+  color: black;
+  cursor:pointer;
+}
