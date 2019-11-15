@@ -2,8 +2,6 @@
 
 {% block content %}
 <script>
-  // Key (Dictionary):6283d672-c28a-4e42-af70-aefc42fe7fc6Key
-  // (Thesaurus):bfc4e8f4-02fb-40bb-abe9-b159651a553e
 
   function openModal(loop_index) {
     console.log("I am getting the modal for " + loop_index);
@@ -11,7 +9,7 @@
     var modal = document.getElementById('modal_' + loop_index);
     var modal_word = modal.getElementsByClassName('word')[0];
     var modal_def = modal.getElementsByClassName('def')[0];
-    // https://www.dictionaryapi.com/api/v3/references/collegiate/json/test?key=6283d672-c28a-4e42-af70-aefc42fe7fc6  
+  
     fetch('https://word-list-4131.herokuapp.com/get_def/'+src_word)
       .then((res) => { return res.json() })
       .then((data) => {

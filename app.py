@@ -83,7 +83,7 @@ def filter_by_pattern(pattern, word_set, sorted_good_words):
 @app.route('/index')
 def index():
     form = WordForm()
-    return render_template("index.html", form=form, name="CSCI4131")
+    return render_template("index.html", form=form, name="Sean Montague")
 
 
 @app.route('/words', methods=['GET', 'POST'])
@@ -98,12 +98,12 @@ def list_words():
         pattern = form.avail_pattern.data
         if has_non_alpha(letters) or has_non_pattern(pattern):
             flash('letters must consist of alphabetical characters and patterns must consist of alphabetical characters or .')
-            return render_template("index.html", form=form, name="CSCI4131")
+            return render_template("index.html", form=form, name="Sean Montague")
 
         filter_by_len = bool(form.select_word_len.data)
         word_len = int(form.word_len.data)
     else:
-        return render_template("index.html", form=form, name="CSCI4131")
+        return render_template("index.html", form=form, name="Sean Montague")
 
 
     with open('sowpods.txt') as f:
@@ -118,7 +118,7 @@ def list_words():
     elif pattern and filter_by_len:
         if len(pattern) != word_len:
             flash('if pattern and filter by length are both selected, they must be the same length!')
-            return render_template("index.html", form=form, name="CSCI4131")
+            return render_template("index.html", form=form, name="Sean Montague")
         filter_by_pattern(pattern, word_set, sorted_good_words)
     elif pattern and not filter_by_len:
         filter_by_pattern(pattern, word_set, sorted_good_words)
@@ -126,7 +126,7 @@ def list_words():
         word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
         flash('Due to limitations in flash/heroku, results must have a filter applied!')
-        return redirect(url_for('index', form=form, name="CSCI4131"))
+        return redirect(url_for('index', form=form, name="Sean Montague"))
     if modal_word:
         modal_word['def'] = get_definition(modal_word['word'])
 
