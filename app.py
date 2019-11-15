@@ -133,7 +133,7 @@ def list_words(**kwargs):
     elif filter_by_len:
         word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
-        render_template('wordlist.html', wordlist=list(word_set),
+        render_template('wordlist.html', wordlist=list(good_words),
             name="CS4131",
             modal_word=modal_word,
             letters=letters,
