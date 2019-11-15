@@ -87,7 +87,7 @@ def index():
 
 
 @app.route('/words', methods=['GET', 'POST'])
-def list_words(**kwargs):
+def list_words():
     word_set, good_words = set(), set()
     sorted_good_words = []
     form = WordForm()
