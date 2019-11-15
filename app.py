@@ -22,9 +22,6 @@ app.config["SECRET_KEY"] = "row the boats"
 app.config["TESTING"] = True
 csrf.init_app(app)
 
-prev_word_set = set()
-g_good_words = set()
-g_sorted_good_words = []
 
 def generate_permutations(letters, l, word_set, good_words, filter_len):
     word_list = []
@@ -138,8 +135,7 @@ def list_words(**kwargs):
     elif filter_by_len:
         word_set = get_good_words_by_size(sorted_good_words, word_len)
     else:
-        return render_template("index.html", form=form, name="CSCI4131")
-        prev_word_set = word_set
+        word_set = good_words
     if modal_word:
         modal_word['def'] = get_definition(modal_word['word'])
 
