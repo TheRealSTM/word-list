@@ -12,7 +12,7 @@
     var modal_word = modal.getElementsByClassName('word')[0];
     var modal_def = modal.getElementsByClassName('def')[0];
     // https://www.dictionaryapi.com/api/v3/references/collegiate/json/test?key=6283d672-c28a-4e42-af70-aefc42fe7fc6  
-    fetch('http://localhost:5000/get_def/'+src_word)
+    fetch('https://word-list-4131.herokuapp.com/get_def/'+src_word)
       .then((res) => { return res.json() })
       .then((data) => {
       modal_word.innerHTML = src_word;
