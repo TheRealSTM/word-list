@@ -91,7 +91,6 @@ def list_words():
     word_set, good_words = set(), set()
     sorted_good_words = []
     form = WordForm()
-    modal_word = dict()
 
     if form.validate_on_submit():
         letters = form.avail_letters.data
@@ -110,14 +109,24 @@ def list_words():
         good_words = set(x.strip().lower() for x in f.readlines())
         sorted_good_words = sorted(list(good_words), key=lambda x: len(x))
 
-    if letters and filter_by_len:
+    if letters and pattern:
+        if filter_by_len:
+            if len(pattern) != word_len:
+                flash('If Pattern and Filter by Length are both selected, they must be the same length!')
+                return render_template("index.html", form=form, name="Sean Montague")
+            generate_permutations(letters, word_len, word_set, good_words, filter_by_len)
+        else:
+            generate_permutations(letters, len(letters), word_set, good_words, filter_by_len)
+        partial_word_list, word_set = list(word_set), set()
+        filter_by_pattern(pattern, word_set, partial_word_list)
+    elif letters and filter_by_len:
         generate_permutations(letters, word_len, word_set, good_words, filter_by_len)
         word_set = get_good_words_by_size(word_set, word_len)
     elif letters and not filter_by_len:
         generate_permutations(letters, len(letters), word_set, good_words, filter_by_len)
     elif pattern and filter_by_len:
         if len(pattern) != word_len:
-            flash('if pattern and filter by length are both selected, they must be the same length!')
+            flash('If Pattern and Filter by Length are both selected, they must be the same length!')
             return render_template("index.html", form=form, name="Sean Montague")
         filter_by_pattern(pattern, word_set, sorted_good_words)
     elif pattern and not filter_by_len:
@@ -127,12 +136,9 @@ def list_words():
     else:
         flash('Due to limitations in flash/heroku, results must have a filter applied!')
         return redirect(url_for('index', form=form, name="Sean Montague"))
-    if modal_word:
-        modal_word['def'] = get_definition(modal_word['word'])
 
     return render_template('wordlist.html', wordlist=sorted(word_set, key=lambda x:(len(x), x)),
-        name="Sean Montague",
-        modal_word=modal_word)
+        name="Sean Montague")
 
 
 @app.route('/get_def/<word>', methods=['GET', 'POST'])
