@@ -37,8 +37,6 @@ def generate_permutations(letters, l, word_set, good_words, filter_len):
                 search_word = "".join(word_let)
                 word_list.append(search_word)
 
-
-    app.logger.info("{}".format(word_list))
     for w in word_list:
         if w in good_words:
             word_set.add(w)
@@ -61,6 +59,8 @@ def has_non_alpha(letters):
 def has_non_pattern(letters):
     return not all(let.isalpha() or let == '.' for let in letters)
 
+# Note: filter_by_pattern algorithm requires that the input words be sorted based
+# on length
 def filter_by_pattern(pattern, word_set, sorted_good_words):
     len_pattern = len(pattern)
     for word in sorted_good_words:
@@ -117,8 +117,8 @@ def list_words():
             generate_permutations(letters, word_len, word_set, good_words, filter_by_len)
         else:
             generate_permutations(letters, len(letters), word_set, good_words, filter_by_len)
-        partial_word_list, word_set = list(word_set), set()
-        filter_by_pattern(pattern, word_set, partial_word_list)
+        sorted_partial_word_list, word_set = sorted(list(word_set), key=lambda x:len(x)), set()
+        filter_by_pattern(pattern, word_set, sorted_partial_word_list)
     elif letters and filter_by_len:
         generate_permutations(letters, word_len, word_set, good_words, filter_by_len)
         word_set = get_good_words_by_size(word_set, word_len)
